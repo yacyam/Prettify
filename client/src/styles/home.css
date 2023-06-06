@@ -1,0 +1,37 @@
+.home--container {
+  background: linear-gradient(0deg, rgb(215, 214, 214), rgb(80, 132, 234));
+  color: white;
+  height: 100vh;
+  font-size: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.home--container h3 {
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.home--login-btn {
+  width: 300px;
+  height: 50px;
+  border-radius: 200px;
+  border: none;
+  transition-property: background-color;
+  transition-duration: .2s;
+  background-color: #9350f1;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+
+.home--login-btn:hover {
+  background-color: #6e1be1;
+}
