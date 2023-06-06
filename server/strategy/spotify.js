@@ -40,11 +40,6 @@ passport.use(new SpotifyStrategy(
     try {
       const spotifyUser = await SpotifyUser.findOne({ spotifyId: profile.id })
       if (spotifyUser) {
-        console.log(`Found User ${spotifyUser}`)
-        await spotifyUser.updateOne({
-          accessToken: encryptedAccess,
-          refreshToken: encryptedRefresh
-        })
         return done(null, spotifyUser)
       }
       else {
@@ -55,9 +50,11 @@ passport.use(new SpotifyStrategy(
           accessToken: encryptedAccess,
           refreshToken: encryptedRefresh
         })
+        console.log(newUser)
         return done(null, newUser)
       }
     } catch (err) {
+      console.log('here')
       done(err, null)
     }
   }

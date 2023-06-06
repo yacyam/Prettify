@@ -6,11 +6,9 @@ const cors = require('cors')
 const MongoStore = require('connect-mongo')
 const app = express()
 require('dotenv').config()
-app.use(cors({ origin: true }))
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
 
 require('./strategy/spotify')
-
-const authRoutes = require('./routes/auth')
 
 require('./database')
 
@@ -29,7 +27,18 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
+const authRoutes = require('./routes/auth')
+
 app.use('/auth', authRoutes)
+
+app.use('/getuser', (req, res) => {
+  if (req.user) {
+    res.send('ok')
+  }
+  else {
+    res.sendStatus(401)
+  }
+})
 
 app.listen(PORT, () => console.log(`Server Running on PORT ${PORT}`))
 

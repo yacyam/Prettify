@@ -1,5 +1,6 @@
 const { Router } = require('express')
 const passport = require('passport')
+const SpotifyUser = require('../database/schema/SpotifyUser')
 const router = Router()
 
 router.get('/spotify', passport.authenticate('spotify'))
@@ -15,6 +16,12 @@ router.get('/success', (req, res) => {
 
 router.get('/failure', (req, res) => {
   res.send('Failure')
+})
+
+router.use('/logout', (req, res) => {
+  req.logout((err) => res.send(err))
+  req.session.destroy()
+  res.redirect('http://localhost:5173/')
 })
 
 module.exports = router
