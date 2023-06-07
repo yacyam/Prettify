@@ -18,10 +18,11 @@ router.get('/failure', (req, res) => {
   res.send('Failure')
 })
 
-router.use('/logout', (req, res) => {
-  req.logout((err) => res.send(err))
-  req.session.destroy()
-  res.redirect('http://localhost:5173/')
+router.get('/logout', (req, res, next) => {
+  req.logout((err) => {
+    if (err) return next(err)
+    res.redirect('http://localhost:5173/')
+  })
 })
 
 module.exports = router

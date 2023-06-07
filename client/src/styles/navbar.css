@@ -1,0 +1,30 @@
+.navbar--container {
+  padding: 20px;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+}
+
+.navbar--logout-btn {
+  width: 150px;
+  height: 40px;
+  border-radius: 200px;
+  border: none;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s ease 0.1s;
+  background-color: #09b709;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  font-weight: 550;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+
+.navbar--logout-btn:hover {
+  background-color: #1be1ac;
+  box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+  transform: translateY(-2px);
+}

@@ -1,9 +1,7 @@
 const passport = require('passport')
 const SpotifyStrategy = require('passport-spotify').Strategy
 const SpotifyUser = require('../database/schema/SpotifyUser')
-const CryptoJS = require('crypto-js')
 const { encryptToken } = require('../helpers/encrypt')
-require('dotenv').config()
 
 /**
  * Serialize user into the session so that when we deserialize the

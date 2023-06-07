@@ -1,7 +1,6 @@
 .home--container {
-  background: linear-gradient(0deg, rgb(215, 214, 214), rgb(80, 132, 234));
+
   color: white;
-  height: 100vh;
   font-size: 50px;
   display: flex;
   flex-direction: column;
@@ -20,8 +19,8 @@
   height: 50px;
   border-radius: 200px;
   border: none;
-  transition-property: background-color;
-  transition-duration: .2s;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s ease 0.1s;
   background-color: #9350f1;
   cursor: pointer;
   color: white;
@@ -34,4 +33,6 @@
 
 .home--login-btn:hover {
   background-color: #6e1be1;
+  box-shadow: 0px 15px 20px rgba(125, 125, 125, 0.322);
+  transform: translateY(-1px);
 }
