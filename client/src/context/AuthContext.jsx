@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
-    axios.get('http://localhost:3000/getuser', { withCredentials: true })
+    axios.get('http://localhost:3000/user/authenticate', { withCredentials: true })
       .then(res => {
         if (res.data === 'ok') {
           setIsAuthenticated(true)

@@ -1,6 +1,5 @@
 const { Router } = require('express')
 const passport = require('passport')
-const SpotifyUser = require('../database/schema/SpotifyUser')
 const router = Router()
 
 router.get('/spotify', passport.authenticate('spotify'))

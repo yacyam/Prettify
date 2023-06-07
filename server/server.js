@@ -28,17 +28,10 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 const authRoutes = require('./routes/auth')
+const userRoutes = require('./routes/user')
 
 app.use('/auth', authRoutes)
-
-app.use('/getuser', (req, res) => {
-  if (req.user) {
-    res.send('ok')
-  }
-  else {
-    res.sendStatus(401)
-  }
-})
+app.use('/user', userRoutes)
 
 app.listen(PORT, () => console.log(`Server Running on PORT ${PORT}`))
 
