@@ -10,7 +10,6 @@ const { encryptToken } = require('../helpers/encrypt')
  */
 passport.serializeUser((user, done) => {
   console.log('at serializing user')
-  console.log(user.id)
   done(null, user.id)
 })
 
@@ -38,7 +37,13 @@ passport.use(new SpotifyStrategy(
     try {
       const spotifyUser = await SpotifyUser.findOne({ spotifyId: profile.id })
       if (spotifyUser) {
-        return done(null, spotifyUser)
+        await SpotifyUser.findOneAndUpdate({ spotifyId: profile.id }, {
+          accessToken: encryptedAccess,
+          refreshToken: encryptedRefresh
+        })
+
+        const updatedUser = await SpotifyUser.findOne({ spotifyId: profile.id })
+        return done(null, updatedUser)
       }
       else {
         console.log('creating user')
@@ -52,7 +57,7 @@ passport.use(new SpotifyStrategy(
         return done(null, newUser)
       }
     } catch (err) {
-      console.log('here')
+      console.log('Error in Updating/Creating user')
       done(err, null)
     }
   }

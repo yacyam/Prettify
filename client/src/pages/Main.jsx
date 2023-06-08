@@ -1,5 +1,7 @@
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { useContext, useState } from "react"
+import AuthContext from "../context/AuthContext"
+
 
 export default function Main() {
   const [userInfo, setUserInfo] = useState([])
@@ -8,18 +10,24 @@ export default function Main() {
     src: ""
   })
 
-  async function getSpotifyInfo() {
-    const accessToken = await axios.get('http://localhost:3000/user/info',
-      { withCredentials: true })
+  const { getSpotifyData } = useContext(AuthContext)
 
-    const spotifyData = await axios.get('https://api.spotify.com/v1/me/top/artists',
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken.data}`
-        }
-      })
-    setUserInfo(spotifyData.data.items)
-    console.log(userInfo)
+  async function updateSpotifyInfo() {
+    try {
+      const newSpotifyData = await getSpotifyData()
+      setUserInfo(newSpotifyData)
+
+    } catch (err) {
+      if (err.response.status === 401) {
+        console.log('need new access token')
+        await axios.get('http://localhost:3000/user/refresh_token', { withCredentials: true })
+        const newSpotifyData = await getSpotifyData()
+        setUserInfo(newSpotifyData)
+      }
+      else {
+        console.log('Something went wrong')
+      }
+    }
   }
 
   function showData() {
@@ -33,10 +41,11 @@ export default function Main() {
 
   return (
     <div className="main--container">
-      <button onClick={getSpotifyInfo}>Get user info</button>
+      <button onClick={updateSpotifyInfo}>Get user info</button>
       <button onClick={showData}> Show Data </button>
       <h1>{displayData.name}</h1>
       <img src={displayData.src} alt="image of random band" />
     </div>
   )
 }
+
