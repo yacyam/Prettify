@@ -1,16 +1,52 @@
 import axios from "axios"
 import { useContext, useState } from "react"
 import AuthContext from "../context/AuthContext"
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend
+} from 'chart.js'
+
+import { Pie } from 'react-chartjs-2'
+
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend
+)
+
 
 
 export default function Main() {
   const [userInfo, setUserInfo] = useState([])
-  const [displayData, setDisplayData] = useState({
-    name: "",
-    src: ""
-  })
+  const [displayData, setDisplayData] = useState([])
+  const [showAll, setShowAll] = useState(false)
 
   const { getSpotifyData } = useContext(AuthContext)
+
+  function aggregateData() {
+    setDisplayData(() => {
+      const dataHold = {}
+
+      //create huge map for all genres
+      userInfo.map((artist) => {
+        artist.genres.map((genre) => {
+          genre in dataHold ? dataHold[genre] += 1 : dataHold[genre] = 1
+        })
+      })
+
+      const arrayTopData = Object.entries(dataHold)
+      arrayTopData.sort(([_, n1], [__, n2]) => n2 - n1)
+
+      const finalTopData = arrayTopData.filter((_, i) => i < 6)
+
+      console.log(finalTopData)
+      return finalTopData
+    })
+
+    setShowAll(true)
+  }
 
   async function updateSpotifyInfo() {
     try {
@@ -30,21 +66,42 @@ export default function Main() {
     }
   }
 
-  function showData() {
-    const dataIndex = Math.floor(Math.random() * (userInfo.length))
+  const data = {
+    labels: displayData.map(([genre, _]) => genre),
+    datasets: [
+      {
+        data: displayData.map(([_, amount]) => amount),
+        backgroundColor: [
+          'rgb(0, 63, 92)',
+          'rgb(88, 80, 141)',
+          'rgb(188, 80, 144)',
+          'rgb(255, 99, 97)',
+          'rgb(255, 166, 0)',
+          'yellow'
+        ]
+      }
+    ]
+  }
 
-    const dataImage = userInfo[dataIndex].images[0].url
-    const dataName = userInfo[dataIndex].name
-
-    setDisplayData({ name: dataName, src: dataImage })
+  const options = {
+    color: 'white'
   }
 
   return (
     <div className="main--container">
       <button onClick={updateSpotifyInfo}>Get user info</button>
-      <button onClick={showData}> Show Data </button>
-      <h1>{displayData.name}</h1>
-      <img src={displayData.src} alt="image of random band" />
+      <button onClick={aggregateData}> Show Data </button>
+      {showAll && <div style={{
+        padding: '20px',
+        width: '50%',
+        color: 'white'
+      }}>
+        <Pie
+          data={data}
+          options={options}
+        >
+        </Pie>
+      </div>}
     </div>
   )
 }
