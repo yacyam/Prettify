@@ -1,5 +1,5 @@
 import axios from "axios"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import AuthContext from "../context/AuthContext"
 import {
   Chart as ChartJS,
@@ -25,19 +25,24 @@ ChartJS.register(
 import '../styles/main.css'
 import ArtistImg from "../components/ArtistImg"
 
-
-
 export default function Main() {
-  const [userInfo, setUserInfo] = useState([])
   const [displayData, setDisplayData] = useState({
     genres: [],
     artistData: []
   })
-  const [showAll, setShowAll] = useState(false)
+  const [amountShow, setAmountShow] = useState(0)
 
   const { getSpotifyData } = useContext(AuthContext)
 
-  function aggregateData() {
+  const updateShow = (count) => setAmountShow(prevShow => Math.max(prevShow, count))
+
+  useEffect(() => {
+    if (amountShow === 0) {
+      updateSpotifyInfo()
+    }
+  }, [])
+
+  function aggregateData(userInfo) {
     console.log(userInfo)
     const dummyImage = "https://as1.ftcdn.net/v2/jpg/01/12/43/90/1000_F_112439016_DkgjEftsYWLvlYtyl7gVJo1H9ik7wu1z.jpg"
 
@@ -58,6 +63,7 @@ export default function Main() {
           artistDataHold.push({
             url: dummyImage,
             name: artist.name,
+            popularity: artist.popularity
           })
         }
 
@@ -77,20 +83,18 @@ export default function Main() {
         artistData: finalArtistData
       }
     })
-    setShowAll(true)
   }
 
   async function updateSpotifyInfo() {
     try {
       const newSpotifyData = await getSpotifyData()
-      setUserInfo(newSpotifyData)
-
+      aggregateData(newSpotifyData)
     } catch (err) {
       if (err.response.status === 401) {
         console.log('need new access token')
         await axios.get('http://localhost:3000/user/refresh_token', { withCredentials: true })
         const newSpotifyData = await getSpotifyData()
-        setUserInfo(newSpotifyData)
+        aggregateData(newSpotifyData)
       }
       else {
         console.log('Something went wrong')
@@ -126,6 +130,8 @@ export default function Main() {
 
   const pieChartOptions = {
     color: 'white',
+    maintainAspectRatio: true,
+    animation: false
   }
 
   const sortedPopularityArtists =
@@ -165,6 +171,7 @@ export default function Main() {
 
   const barChartOptions = {
     maintainAspectRatio: true,
+    animation: false,
     scales: {
       y: {
         ticks: {
@@ -175,8 +182,9 @@ export default function Main() {
 
       x: {
         ticks: {
-          color: 'white'
-        }
+          color: 'white',
+        },
+        fontSize: 28
       }
     },
 
@@ -189,29 +197,54 @@ export default function Main() {
     color: 'white'
   }
 
+  function dataComponent(Component, buttonText, whenShow) {
+    const needAbove = whenShow - 1
+    return (
+      <div className="main--data">
+        {
+          amountShow >= needAbove && <button onClick={() => updateShow(whenShow)}>
+            {buttonText}
+          </button>
+        }
+
+        {
+          amountShow >= whenShow &&
+          Component
+        }
+      </div>
+    )
+  }
+
   return (
     <div className="main--container">
-      <button onClick={updateSpotifyInfo}>Get user info</button>
-      <button onClick={aggregateData}> Show Data </button>
-      {showAll &&
-        <div style={{ width: '400px' }}>
-          <Pie
-            data={pieChartData}
-            options={pieChartOptions}
-          >
-          </Pie>
-        </div>}
+      {
+        dataComponent(
+          <section className="main--all-images">
+            {imgElems}
+          </section>,
+          "SEE YOUR ARTIST 9X9", 1
+        )
+      }
 
-      <section className="main--all-images">
-        {imgElems}
-      </section>
+      {dataComponent(
+        <Pie
+          data={pieChartData}
+          options={pieChartOptions}
+          className="main--pie"
+          width={200}
+        >
+        </Pie>, "SEE YOUR FAVORITE GENRES", 2)}
 
-      {showAll && <div style={{ width: '600px' }}>
-        <Bar
-          data={barChartData}
-          options={barChartOptions}
-        ></Bar>
-      </div>}
+      {
+        dataComponent(
+          <Bar
+            data={barChartData}
+            options={barChartOptions}
+            className="main--bar"
+            height={200}
+          ></Bar>, "SEE YOUR LISTENING POPULARITY", 3
+        )
+      }
     </div>
   )
 }

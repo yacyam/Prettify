@@ -1,14 +1,14 @@
 .main--container {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+
+  row-gap: 40px;
 }
 
 .main--all-images {
   display: grid;
   grid-template-columns: repeat(3, 220px);
   gap: 5px;
-  background-color: black;
 }
 
 .artist--container {
@@ -39,4 +39,17 @@
 .artist--container:hover .img-name {
   visibility: visible;
   opacity: 1;
+}
+
+.main--data {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  height: 660px;
+  width: 100%;
+  padding: 20px;
+}
+
+.main--bar {
+  width: 200px;
 }

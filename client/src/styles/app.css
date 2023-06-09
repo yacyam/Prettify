@@ -1,6 +1,7 @@
 .app--container {
-  background: linear-gradient(0deg, rgb(215, 214, 214), rgb(80, 132, 234));
+  background: linear-gradient(0deg, rgb(80, 132, 234), rgb(215, 214, 214));
   height: 100vh;
   display: grid;
   grid-template-rows: 1fr 12fr;
+  overflow-y: auto;
 }
