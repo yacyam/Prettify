@@ -50,7 +50,7 @@ router.get('/refresh_token', function (req, res) {
     request.post(authOptions, async function (error, response, body) {
       if (!error && response.statusCode === 200) {
         const newAccessToken = body.access_token;
-        const encryptedNewAccess = encryptToken(newAccessToken, process.env.ENCRYPTION_SECRET)
+        const encryptedNewAccess = encryptToken(newAccessToken)
 
         await SpotifyUser.findOneAndUpdate({ spotifyId: req.user.spotifyId }, {
           accessToken: encryptedNewAccess
