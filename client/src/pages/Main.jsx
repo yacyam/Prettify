@@ -32,6 +32,7 @@ export default function Main() {
     genres: [],
     artistData: []
   })
+  const [displayTracks, setDisplayTracks] = useState([])
   const [amountShow, setAmountShow] = useState(0)
 
 
@@ -45,8 +46,7 @@ export default function Main() {
     }
   }, [])
 
-  function aggregateData(userInfo) {
-    console.log(userInfo)
+  function aggregateArtistData(artistInfo) {
     const dummyImage = "https://as1.ftcdn.net/v2/jpg/01/12/43/90/1000_F_112439016_DkgjEftsYWLvlYtyl7gVJo1H9ik7wu1z.jpg"
 
     setDisplayData(() => {
@@ -54,7 +54,7 @@ export default function Main() {
       const artistDataHold = []
 
       //create huge map for all genres
-      userInfo.map((artist) => {
+      artistInfo.map((artist) => {
         if (artist.images.length > 0) {
           artistDataHold.push({
             url: artist.images[0].url,
@@ -81,6 +81,8 @@ export default function Main() {
       const finalTopGenres = arrayTopGenres.filter((_, i) => i < 6)
       const finalArtistData = artistDataHold.filter((_, index) => index < 9)
 
+      console.log(finalArtistData)
+
       return {
         genres: finalTopGenres,
         artistData: finalArtistData
@@ -88,16 +90,33 @@ export default function Main() {
     })
   }
 
+  function aggregateTrackData(trackInfo) {
+    setDisplayTracks(() => {
+      const trackHold = {}
+      const trackToArtists = trackInfo.map((tk) => {
+        tk.artists.map((art) => trackHold[art.name] = tk.name)
+
+        return [tk.name, tk.artists.map((art) => art.name)]
+      }).filter((_, i) => i < 10)
+
+      console.log(trackToArtists)
+
+      return trackToArtists
+    })
+  }
+
   async function updateSpotifyInfo() {
     try {
-      const newSpotifyData = await getSpotifyData()
-      aggregateData(newSpotifyData)
+      const [newArtistData, newTrackData] = await getSpotifyData()
+      aggregateArtistData(newArtistData)
+      aggregateTrackData(newTrackData)
     } catch (err) {
       if (err.response.status === 401) {
         console.log('need new access token')
         await axios.get('http://localhost:3000/user/refresh_token', { withCredentials: true })
-        const newSpotifyData = await getSpotifyData()
-        aggregateData(newSpotifyData)
+        const [newArtistData, newTrackData] = await getSpotifyData()
+        aggregateArtistData(newArtistData)
+        aggregateTrackData(newTrackData)
       }
       else {
         console.log('Something went wrong')
@@ -193,7 +212,7 @@ export default function Main() {
     scales: {
       y: {
         ticks: {
-          color: 'white',
+          color: 'black',
           font: {
             size: 17
           }
@@ -203,7 +222,7 @@ export default function Main() {
 
       x: {
         ticks: {
-          color: 'white',
+          color: 'black',
           font: {
             size: 20
           }
@@ -220,10 +239,28 @@ export default function Main() {
         }
       }
     },
-    color: 'white'
+    color: 'black'
   }
 
+  const trackElements = displayTracks.map(([track, trackArtists], i) => {
+    const artistStr = trackArtists.reduce((prev, curr) => prev + ", " + curr)
 
+    const artistToTrack = artistStr + " - " + track
+
+    if (displayData.artistData.every((art) => !trackArtists.includes(art.name))) {
+      return <li
+        key={i}
+      >{artistToTrack}</li>
+    }
+    else {
+      return <li
+        key={i}
+        className="main--highlight"
+      >{artistToTrack}</li>
+    }
+  })
+
+  console.log(trackElements)
 
   function dataComponent(Component, buttonText, whenShow) {
     const needAbove = whenShow - 1
@@ -231,26 +268,38 @@ export default function Main() {
     return (
       <div className="main--data">
         {
-          amountShow == needAbove && <button onClick={() => updateShow(whenShow)}>
+          amountShow >= needAbove && <button onClick={() => updateShow(whenShow)}>
             {buttonText}
           </button>
         }
-        {Component}
+        {
+          Component
+        }
       </div>
     )
   }
+
+  const whenVisible = (above) => amountShow >= above ? ` visible` : ` invisible`
 
   return (
     <div className="main--container">
       {
         dataComponent(
-          <section
-            className={"main--all-images "
-              + (amountShow > 0 ? `visible` : `invisible`)}
-          >
+          <section className={"main--all-images" + (whenVisible(1))}>
             {imgElems}
           </section>,
           "SEE YOUR ARTIST 3X3", 1
+        )
+      }
+
+      {
+        dataComponent(
+          <section className={"main--all-tracks" + (whenVisible(2))}>
+            <ol>
+              {trackElements}
+            </ol>
+          </section>,
+          "SEE YOUR TOP 10 TRACKS", 2
         )
       }
 
@@ -258,17 +307,17 @@ export default function Main() {
         <Pie
           data={pieChartData}
           options={pieChartOptions}
-          className={`main--pie ` + (amountShow > 1 ? `visible` : `invisible`)}
+          className={"main--pie" + (whenVisible(3))}
         >
-        </Pie>, "SEE YOUR FAVORITE GENRES", 2)}
+        </Pie>, "SEE YOUR FAVORITE GENRES", 3)}
 
       {
         dataComponent(
           <Bar
             data={barChartData}
             options={barChartOptions}
-            className={"main--bar " + (amountShow > 2 ? `visible` : `invisible`)}
-          ></Bar>, "SEE YOUR LISTENING POPULARITY", 3
+            className={"main--bar" + (whenVisible(4))}
+          ></Bar>, "SEE YOUR LISTENING POPULARITY", 4
         )
       }
     </div>

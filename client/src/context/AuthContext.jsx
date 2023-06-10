@@ -28,15 +28,21 @@ export function AuthProvider({ children }) {
       { withCredentials: true })
 
     console.log('here 2')
-    const spotifyData = await axios.get('https://api.spotify.com/v1/me/top/artists',
+    const artistData = await axios.get('https://api.spotify.com/v1/me/top/artists',
       {
         headers: {
           Authorization: `Bearer ${accessToken.data}`
         },
       })
 
+    const trackData = await axios.get('https://api.spotify.com/v1/me/top/tracks', {
+      headers: {
+        Authorization: `Bearer ${accessToken.data}`
+      },
+    })
+
     console.log('here 3')
-    return spotifyData.data.items
+    return [artistData.data.items, trackData.data.items]
   }
 
   return (
