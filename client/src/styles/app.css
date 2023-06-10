@@ -1,5 +1,5 @@
 .app--container {
-  background: linear-gradient(0deg, rgb(80, 132, 234), rgb(215, 214, 214));
+  background: linear-gradient(0deg, rgb(80, 132, 234), rgba(9, 229, 24, 0.41));
   height: 100vh;
   display: grid;
   grid-template-rows: 1fr 12fr;

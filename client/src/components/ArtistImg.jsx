@@ -7,8 +7,7 @@ export default function ArtistImg(props) {
     <div className="artist--container">
       <img
         src={props.src}
-        width={220}
-        height={220}
+        className="artist--img"
       />
       <p className="img-name">{props.name}</p>
     </div>

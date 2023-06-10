@@ -1,18 +1,49 @@
 .main--container {
   display: flex;
   flex-direction: column;
-
+  min-width: 0;
   row-gap: 40px;
+}
+
+.main--container button {
+  width: 250px;
+  height: 50px;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s ease 0.1s;
+  background-color: #0e7b1e;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+
+.main--container button:hover {
+  background-color: #1be198;
+  box-shadow: 0px 15px 20px rgba(125, 125, 125, 0.322);
+  transform: translateY(-1px);
 }
 
 .main--all-images {
   display: grid;
-  grid-template-columns: repeat(3, 220px);
+  grid-template-columns: repeat(3, minmax(0, 220px));
+  grid-template-rows: repeat(3, minmax(0, 220px));
   gap: 5px;
+  min-width: 0;
 }
 
 .artist--container {
   position: relative;
+  max-width: 220px;
+  max-height: 220px;
+}
+
+.artist--img {
   height: 220px;
   width: 220px;
 }
@@ -50,6 +81,54 @@
   padding: 20px;
 }
 
-.main--bar {
-  width: 200px;
+.invisible {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.5s linear;
+}
+
+.main--data main--bar {
+  width: 100px;
+}
+
+@media screen and (max-width: 1300px) {
+  .main--data {
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .main--container {
+    justify-content: center;
+    align-items: center;
+  }
+
+  .main--data {
+    flex-direction: column;
+  }
+
+  .artist--img {
+    width: 25vw;
+    height: 25vw
+  }
+
+  .artist--container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+  }
+
+  .main--all-images {
+    display: grid;
+    grid-template-columns: repeat(3, 25vw);
+    grid-template-rows: repeat(3, 25vw);
+    gap: 5px;
+    min-width: 0;
+  }
 }

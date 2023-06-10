@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useContext, useEffect, useState } from "react"
 import AuthContext from "../context/AuthContext"
+import ChartDataLabels from 'chartjs-plugin-datalabels'
 import {
   Chart as ChartJS,
   ArcElement,
@@ -19,7 +20,8 @@ ChartJS.register(
   Legend,
   BarElement,
   CategoryScale,
-  LinearScale
+  LinearScale,
+  ChartDataLabels
 )
 
 import '../styles/main.css'
@@ -31,6 +33,7 @@ export default function Main() {
     artistData: []
   })
   const [amountShow, setAmountShow] = useState(0)
+
 
   const { getSpotifyData } = useContext(AuthContext)
 
@@ -122,17 +125,34 @@ export default function Main() {
           'rgb(188, 80, 144)',
           'rgb(255, 99, 97)',
           'rgb(255, 166, 0)',
-          'yellow'
+          'green'
         ]
       }
     ]
   }
 
   const pieChartOptions = {
-    color: 'white',
-    maintainAspectRatio: true,
-    animation: false
+    tooltips: {
+      enabled: false
+    },
+    color: 'black',
+    plugins: {
+      legend: {
+        labels: {
+          font: {
+            size: 20
+          }
+        }
+      },
+      datalabels: {
+        color: 'white',
+        formatter: function (value, context) {
+          return Math.round(value / context.chart.getDatasetMeta(0).total * 100) + "%";
+        }
+      }
+    }
   }
+
 
   const sortedPopularityArtists =
     [...displayData.artistData].sort((a, b) => b.popularity - a.popularity)
@@ -143,26 +163,26 @@ export default function Main() {
       label: 'Artist Popularity',
       data: sortedPopularityArtists.map((data) => data.popularity),
       backgroundColor: [
-        'rgba(255, 99, 132, 0.2)',
-        'rgba(255, 159, 64, 0.2)',
-        'rgba(255, 205, 86, 0.2)',
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(153, 102, 255, 0.2)',
-        'rgba(201, 203, 207, 0.2)',
-        'rgba(153, 102, 255, 0.2)',
-        'rgba(201, 203, 207, 0.2)'
+        'rgba(255, 99, 132, 0.8)',
+        'rgba(255, 159, 64, 0.8)',
+        'rgba(255, 205, 86, 0.8)',
+        'rgba(75, 192, 192, 0.8)',
+        'rgba(153, 102, 255, 0.8)',
+        'rgba(54, 162, 235, 0.8)',
+        'rgba(255, 192, 203, 0.8)',
+        'rgba(198, 226, 255, 0.8)',
+        'rgba(221, 221, 221, 0.8)'
       ],
       borderColor: [
         'rgb(255, 99, 132)',
         'rgb(255, 159, 64)',
         'rgb(255, 205, 86)',
         'rgb(75, 192, 192)',
+        'rgb(153, 102, 255)',
         'rgb(54, 162, 235)',
-        'rgb(153, 102, 255)',
-        'rgb(201, 203, 207)',
-        'rgb(153, 102, 255)',
-        'rgb(201, 203, 207)'
+        'rgb(255, 192, 203)',
+        'rgb(198, 226, 255)',
+        'rgb(221, 221, 221)'
       ],
       borderWidth: 1,
       color: 'white'
@@ -170,12 +190,13 @@ export default function Main() {
   }
 
   const barChartOptions = {
-    maintainAspectRatio: true,
-    animation: false,
     scales: {
       y: {
         ticks: {
-          color: 'white'
+          color: 'white',
+          font: {
+            size: 17
+          }
         },
         beginAtZero: true,
       },
@@ -183,34 +204,38 @@ export default function Main() {
       x: {
         ticks: {
           color: 'white',
+          font: {
+            size: 20
+          }
         },
-        fontSize: 28
       }
     },
 
-    legends: {
-      labels: {
-        fontSize: 26,
-
+    plugins: {
+      legend: {
+        labels: {
+          font: {
+            size: 20
+          }
+        }
       }
     },
     color: 'white'
   }
 
+
+
   function dataComponent(Component, buttonText, whenShow) {
     const needAbove = whenShow - 1
+
     return (
       <div className="main--data">
         {
-          amountShow >= needAbove && <button onClick={() => updateShow(whenShow)}>
+          amountShow == needAbove && <button onClick={() => updateShow(whenShow)}>
             {buttonText}
           </button>
         }
-
-        {
-          amountShow >= whenShow &&
-          Component
-        }
+        {Component}
       </div>
     )
   }
@@ -219,10 +244,13 @@ export default function Main() {
     <div className="main--container">
       {
         dataComponent(
-          <section className="main--all-images">
+          <section
+            className={"main--all-images "
+              + (amountShow > 0 ? `visible` : `invisible`)}
+          >
             {imgElems}
           </section>,
-          "SEE YOUR ARTIST 9X9", 1
+          "SEE YOUR ARTIST 3X3", 1
         )
       }
 
@@ -230,8 +258,7 @@ export default function Main() {
         <Pie
           data={pieChartData}
           options={pieChartOptions}
-          className="main--pie"
-          width={200}
+          className={`main--pie ` + (amountShow > 1 ? `visible` : `invisible`)}
         >
         </Pie>, "SEE YOUR FAVORITE GENRES", 2)}
 
@@ -240,8 +267,7 @@ export default function Main() {
           <Bar
             data={barChartData}
             options={barChartOptions}
-            className="main--bar"
-            height={200}
+            className={"main--bar " + (amountShow > 2 ? `visible` : `invisible`)}
           ></Bar>, "SEE YOUR LISTENING POPULARITY", 3
         )
       }
