@@ -1,6 +1,3 @@
-import { useState } from "react"
-
-/* eslint react/prop-types: 0 */
 export default function ArtistImg(props) {
 
   return (

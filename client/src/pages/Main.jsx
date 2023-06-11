@@ -26,6 +26,7 @@ ChartJS.register(
 
 import '../styles/main.css'
 import ArtistImg from "../components/ArtistImg"
+import Track from "../components/Track"
 
 export default function Main() {
   const [displayData, setDisplayData] = useState({
@@ -33,6 +34,7 @@ export default function Main() {
     artistData: []
   })
   const [displayTracks, setDisplayTracks] = useState([])
+  const [displayRecs, setDisplayRecs] = useState([])
   const [amountShow, setAmountShow] = useState(0)
 
 
@@ -48,64 +50,64 @@ export default function Main() {
 
   function aggregateArtistData(artistInfo) {
     const dummyImage = "https://as1.ftcdn.net/v2/jpg/01/12/43/90/1000_F_112439016_DkgjEftsYWLvlYtyl7gVJo1H9ik7wu1z.jpg"
-    console.log(artistInfo)
 
-    setDisplayData(() => {
-      const genreAmount = {}
-      const artistDataHold = []
+    const genreAmount = {}
+    const artistDataHold = []
 
-      //create huge map for all genres
-      artistInfo.map((artist) => {
-        artistDataHold.push({
-          url: artist.images.length > 0 ? artist.images[0].url : dummyImage,
-          name: artist.name,
-          popularity: artist.popularity,
-          id: artist.id
-        })
-
-        artist.genres.map((genre) => {
-          genre in genreAmount ? genreAmount[genre] += 1 : genreAmount[genre] = 1
-        })
+    //create huge map for all genres
+    artistInfo.map((artist) => {
+      artistDataHold.push({
+        url: artist.images.length > 0 ? artist.images[0].url : dummyImage,
+        name: artist.name,
+        popularity: artist.popularity,
+        id: artist.id
       })
 
-      const arrayTopGenres = Object.entries(genreAmount)
-      arrayTopGenres.sort(([_, n1], [__, n2]) => n2 - n1)
-
-      const finalTopGenres = arrayTopGenres.filter((_, i) => i < 6)
-      const finalArtistData = artistDataHold.filter((_, index) => index < 9)
-
-      return {
-        genres: finalTopGenres,
-        artistData: finalArtistData
-      }
+      artist.genres.map((genre) => {
+        genre in genreAmount ? genreAmount[genre] += 1 : genreAmount[genre] = 1
+      })
     })
+
+    const arrayTopGenres = Object.entries(genreAmount)
+    arrayTopGenres.sort(([_, n1], [__, n2]) => n2 - n1)
+
+    const finalTopGenres = arrayTopGenres.filter((_, i) => i < 6)
+    const finalArtistData = artistDataHold.filter((_, index) => index < 9)
+
+    const totalArtistData = {
+      genres: finalTopGenres,
+      artistData: finalArtistData
+    }
+
+    setDisplayData(() => totalArtistData)
+
+    return totalArtistData
   }
 
   function aggregateTrackData(trackInfo) {
-    setDisplayTracks(() => {
+    const trackToArtists = trackInfo.map((tk) =>
+      [tk.name, { artists: tk.artists.map((art) => art.name), id: tk.id }]
+    ).filter((_, i) => i < 10)
 
-      const trackToArtists = trackInfo.map((tk) =>
-        [tk.name, { artists: tk.artists.map((art) => art.name), id: tk.id }]
-      ).filter((_, i) => i < 10)
+    setDisplayTracks(() => trackToArtists)
 
-      return trackToArtists
-    })
-
+    return trackToArtists
   }
 
   async function updateSpotifyInfo() {
     try {
-
       const [newArtistData, newTrackData] = await getSpotifyData()
-      aggregateArtistData(newArtistData)
-      aggregateTrackData(newTrackData)
+      const artistData = aggregateArtistData(newArtistData)
+      const trackData = aggregateTrackData(newTrackData)
+      generateRecs(artistData, trackData)
     } catch (err) {
       if (err.response.status === 401) {
         console.log('need new access token')
         await axios.get('http://localhost:3000/user/refresh_token', { withCredentials: true })
         const [newArtistData, newTrackData] = await getSpotifyData()
-        aggregateArtistData(newArtistData)
-        aggregateTrackData(newTrackData)
+        const artistData = aggregateArtistData(newArtistData)
+        const trackData = aggregateTrackData(newTrackData)
+        generateRecs(artistData, trackData)
       }
       else {
         console.log('Something went wrong')
@@ -113,9 +115,13 @@ export default function Main() {
     }
   }
 
-  async function generateRecs() {
-    const avgFeatures = await aggregateQualities(displayTracks)
-    await getRecs(displayData, displayTracks, avgFeatures)
+  async function generateRecs(artists, tracks) {
+    const avgFeatures = await aggregateQualities(tracks)
+    const spotifyRecs = await getRecs(artists, tracks, avgFeatures)
+
+    const finalRecs = spotifyRecs.filter((_, i) => i < 5)
+
+    setDisplayRecs(finalRecs)
   }
 
 
@@ -236,24 +242,34 @@ export default function Main() {
     color: 'black'
   }
 
-  const trackElements =
-    displayTracks.map(([track, trackData], i) => {
-      const artistStr = trackData.artists.reduce((prev, curr) => prev + ", " + curr)
+  const trackElements = displayTracks.map(([track, trackData], i) => {
+    const artistStr = trackData.artists.reduce((prev, curr) => prev + ", " + curr)
 
-      const artistToTrack = artistStr + " - " + track
+    const artistToTrack = artistStr + " - " + track
 
-      if (displayData.artistData.every((art) => !trackData.artists.includes(art.name))) {
-        return <li
-          key={i}
-        >{artistToTrack}</li>
-      }
-      else {
-        return <li
-          key={i}
-          className="main--highlight"
-        >{artistToTrack}</li>
-      }
-    })
+    if (displayData.artistData.every((art) => !trackData.artists.includes(art.name))) {
+      return <li
+        key={i}
+      >{artistToTrack}</li>
+    }
+    else {
+      return <li
+        key={i}
+        className="main--highlight"
+      >{artistToTrack}</li>
+    }
+  })
+
+  const recommendElements =
+    displayRecs.map((track, i) =>
+      <Track
+        key={i}
+        src={track.image}
+        link={track.url}
+        name={track.name}
+        artists={track.artists}
+      />
+    )
 
   function dataComponent(Component, buttonText, whenShow) {
     const needAbove = whenShow - 1
@@ -318,8 +334,18 @@ export default function Main() {
         )
       }
 
-      <button onClick={generateRecs}>Click for recs</button>
-
+      <>
+        {
+          amountShow == 4 && <button onClick={() => updateShow(5)}>
+            SEE YOUR SONG RECOMMENDATIONS
+          </button>
+        }
+        {
+          <div className={"main--track-container" + (whenVisible(5))}>
+            {recommendElements}
+          </div>
+        }
+      </>
     </div>
   )
 }

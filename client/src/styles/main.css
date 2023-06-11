@@ -145,6 +145,46 @@
   width: 100px;
 }
 
+.main--track-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(0, 300px));
+  justify-content: center;
+}
+
+.track--container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  padding: 30px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: 400;
+}
+
+.track--container h1 {
+  font-size: 20px;
+  padding-top: 5px;
+}
+
+.track--container h4 {
+  margin-top: 10px;
+}
+
+.track--container img {
+  min-width: 0;
+  width: 220px;
+  height: 220px;
+  box-shadow: 1px 4px 4px 0 rgba(0, 0, 0, .2);
+  transition: box-shadow ease-in 0.2s;
+  padding: 20px;
+  position: relative;
+  bottom: 1px;
+  cursor: pointer;
+}
+
+.track--container img:hover {
+  box-shadow: 1px 6px 4px 0 rgba(0, 0, 0, .3);
+}
+
 @media screen and (max-width: 1400px) {
   .main--data {
     flex-direction: column;

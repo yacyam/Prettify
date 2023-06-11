@@ -1,4 +1,3 @@
-/* eslint react/prop-types: 0 */
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
@@ -23,11 +22,9 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function getSpotifyData() {
-    console.log('here 1')
     const accessToken = await axios.get('http://localhost:3000/user/info',
       { withCredentials: true })
 
-    console.log('here 2')
     const artistData = await axios.get('https://api.spotify.com/v1/me/top/artists',
       {
         headers: {
@@ -41,14 +38,12 @@ export function AuthProvider({ children }) {
       },
     })
 
-    console.log('here 3')
     return [artistData.data.items, trackData.data.items]
   }
 
   async function aggregateQualities(tracks) {
     const accessToken = await axios.get('http://localhost:3000/user/info',
       { withCredentials: true })
-    console.log('here')
 
     const allTrackStr =
       tracks.map(([_, track]) => track.id).reduce((prev, curr) => prev + "%2C" + curr)
@@ -108,9 +103,6 @@ export function AuthProvider({ children }) {
     const accessToken = await axios.get('http://localhost:3000/user/info',
       { withCredentials: true })
 
-    console.log(artists)
-    console.log(tracks)
-
     let firstGenre = artists.genres[0][0]
     let secondGenre = ""
     artists.genres.map((genre, i) => {
@@ -121,8 +113,8 @@ export function AuthProvider({ children }) {
 
     const allGenres = firstGenre + `%2C` + secondGenre
 
-    let artistInd1 = Math.floor(Math.random() * artists.artistData.length)
-    let artistInd2 = Math.floor(Math.random() * artists.artistData.length)
+    let artistInd1 = Math.floor(Math.random() * artists.artistData.length / 2)
+    let artistInd2 = Math.floor(Math.random() * artists.artistData.length / 2)
     while (artistInd2 === artistInd1) {
       artistInd2 = Math.floor(Math.random() * artists.artistData.length)
     }
@@ -151,13 +143,22 @@ export function AuthProvider({ children }) {
 
     const newURL = finalURL.replace(/\s/g, '+')
 
-    console.log(newURL)
     const recommendTracks = await axios.get(newURL, {
       headers: {
         Authorization: `Bearer ${accessToken.data}`
       },
     })
-    console.log(recommendTracks)
+
+    const finalTrackData = recommendTracks.data.tracks.map((track) => {
+      return {
+        name: track.name,
+        artists: track.artists.map((art) => art.name),
+        url: track.external_urls.spotify,
+        image: track.album.images[0].url
+      }
+    })
+
+    return finalTrackData
   }
 
 
