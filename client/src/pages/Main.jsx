@@ -36,7 +36,7 @@ export default function Main() {
   const [amountShow, setAmountShow] = useState(0)
 
 
-  const { getSpotifyData } = useContext(AuthContext)
+  const { getSpotifyData, aggregateQualities, getRecs } = useContext(AuthContext)
 
   const updateShow = (count) => setAmountShow(prevShow => Math.max(prevShow, count))
 
@@ -48,6 +48,7 @@ export default function Main() {
 
   function aggregateArtistData(artistInfo) {
     const dummyImage = "https://as1.ftcdn.net/v2/jpg/01/12/43/90/1000_F_112439016_DkgjEftsYWLvlYtyl7gVJo1H9ik7wu1z.jpg"
+    console.log(artistInfo)
 
     setDisplayData(() => {
       const genreAmount = {}
@@ -55,20 +56,12 @@ export default function Main() {
 
       //create huge map for all genres
       artistInfo.map((artist) => {
-        if (artist.images.length > 0) {
-          artistDataHold.push({
-            url: artist.images[0].url,
-            name: artist.name,
-            popularity: artist.popularity,
-          })
-        }
-        else {
-          artistDataHold.push({
-            url: dummyImage,
-            name: artist.name,
-            popularity: artist.popularity
-          })
-        }
+        artistDataHold.push({
+          url: artist.images.length > 0 ? artist.images[0].url : dummyImage,
+          name: artist.name,
+          popularity: artist.popularity,
+          id: artist.id
+        })
 
         artist.genres.map((genre) => {
           genre in genreAmount ? genreAmount[genre] += 1 : genreAmount[genre] = 1
@@ -81,8 +74,6 @@ export default function Main() {
       const finalTopGenres = arrayTopGenres.filter((_, i) => i < 6)
       const finalArtistData = artistDataHold.filter((_, index) => index < 9)
 
-      console.log(finalArtistData)
-
       return {
         genres: finalTopGenres,
         artistData: finalArtistData
@@ -92,21 +83,19 @@ export default function Main() {
 
   function aggregateTrackData(trackInfo) {
     setDisplayTracks(() => {
-      const trackHold = {}
-      const trackToArtists = trackInfo.map((tk) => {
-        tk.artists.map((art) => trackHold[art.name] = tk.name)
 
-        return [tk.name, tk.artists.map((art) => art.name)]
-      }).filter((_, i) => i < 10)
-
-      console.log(trackToArtists)
+      const trackToArtists = trackInfo.map((tk) =>
+        [tk.name, { artists: tk.artists.map((art) => art.name), id: tk.id }]
+      ).filter((_, i) => i < 10)
 
       return trackToArtists
     })
+
   }
 
   async function updateSpotifyInfo() {
     try {
+
       const [newArtistData, newTrackData] = await getSpotifyData()
       aggregateArtistData(newArtistData)
       aggregateTrackData(newTrackData)
@@ -122,6 +111,11 @@ export default function Main() {
         console.log('Something went wrong')
       }
     }
+  }
+
+  async function generateRecs() {
+    const avgFeatures = await aggregateQualities(displayTracks)
+    await getRecs(displayData, displayTracks, avgFeatures)
   }
 
 
@@ -242,25 +236,24 @@ export default function Main() {
     color: 'black'
   }
 
-  const trackElements = displayTracks.map(([track, trackArtists], i) => {
-    const artistStr = trackArtists.reduce((prev, curr) => prev + ", " + curr)
+  const trackElements =
+    displayTracks.map(([track, trackData], i) => {
+      const artistStr = trackData.artists.reduce((prev, curr) => prev + ", " + curr)
 
-    const artistToTrack = artistStr + " - " + track
+      const artistToTrack = artistStr + " - " + track
 
-    if (displayData.artistData.every((art) => !trackArtists.includes(art.name))) {
-      return <li
-        key={i}
-      >{artistToTrack}</li>
-    }
-    else {
-      return <li
-        key={i}
-        className="main--highlight"
-      >{artistToTrack}</li>
-    }
-  })
-
-  console.log(trackElements)
+      if (displayData.artistData.every((art) => !trackData.artists.includes(art.name))) {
+        return <li
+          key={i}
+        >{artistToTrack}</li>
+      }
+      else {
+        return <li
+          key={i}
+          className="main--highlight"
+        >{artistToTrack}</li>
+      }
+    })
 
   function dataComponent(Component, buttonText, whenShow) {
     const needAbove = whenShow - 1
@@ -268,7 +261,7 @@ export default function Main() {
     return (
       <div className="main--data">
         {
-          amountShow >= needAbove && <button onClick={() => updateShow(whenShow)}>
+          amountShow == needAbove && <button onClick={() => updateShow(whenShow)}>
             {buttonText}
           </button>
         }
@@ -283,25 +276,29 @@ export default function Main() {
 
   return (
     <div className="main--container">
-      {
-        dataComponent(
-          <section className={"main--all-images" + (whenVisible(1))}>
-            {imgElems}
-          </section>,
-          "SEE YOUR ARTIST 3X3", 1
-        )
-      }
+      <div className="main--top-data">
+        {
+          dataComponent(
+            <section className={"main--all-images" + (whenVisible(1))}>
+              {imgElems}
+            </section>,
+            "SEE YOUR ARTIST 3X3", 1
+          )
+        }
 
-      {
-        dataComponent(
-          <section className={"main--all-tracks" + (whenVisible(2))}>
-            <ol>
-              {trackElements}
-            </ol>
-          </section>,
-          "SEE YOUR TOP 10 TRACKS", 2
-        )
-      }
+        {
+          dataComponent(
+            <section className={"main--all-tracks" + (whenVisible(2))}>
+              <ol>
+                {trackElements}
+              </ol>
+            </section>,
+            "SEE YOUR TOP 10 TRACKS", 2
+          )
+        }
+
+      </div>
+
 
       {dataComponent(
         <Pie
@@ -320,6 +317,9 @@ export default function Main() {
           ></Bar>, "SEE YOUR LISTENING POPULARITY", 4
         )
       }
+
+      <button onClick={generateRecs}>Click for recs</button>
+
     </div>
   )
 }

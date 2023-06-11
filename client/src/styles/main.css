@@ -5,6 +5,10 @@
   row-gap: 40px;
 }
 
+.main--top-data {
+  display: flex;
+}
+
 .main--container button {
   width: 250px;
   height: 50px;
@@ -41,6 +45,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
 }
 
 .main--all-tracks ol {
@@ -75,7 +80,7 @@
 }
 
 .main--highlight {
-  background-image: linear-gradient(to right, #43d2cfcc, #40e9e6cc, #5085dacc);
+  background-image: linear-gradient(to right, #11e8e4cc, #40e9e6cc, #0ab1ffcc);
   border-radius: 6px;
   padding: 3px 6px;
 }
@@ -140,8 +145,12 @@
   width: 100px;
 }
 
-@media screen and (max-width: 1300px) {
+@media screen and (max-width: 1400px) {
   .main--data {
+    flex-direction: column;
+  }
+
+  .main--top-data {
     flex-direction: column;
   }
 }
