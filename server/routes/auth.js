@@ -10,7 +10,7 @@ router.get('/spotify/redirect', passport.authenticate('spotify', {
 }))
 
 router.get('/success', (req, res) => {
-  res.redirect('http://localhost:5173/')
+  res.redirect('https://prettify-spotidata.netlify.app/')
 })
 
 router.get('/failure', (req, res) => {
@@ -20,7 +20,7 @@ router.get('/failure', (req, res) => {
 router.get('/logout', (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err)
-    res.redirect('http://localhost:5173/')
+    res.redirect('https://prettify-spotidata.netlify.app/')
   })
 })
 
