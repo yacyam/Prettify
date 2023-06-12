@@ -25,7 +25,7 @@ passport.use(new SpotifyStrategy(
   {
     clientID: process.env.SPOTIFY_CLIENT_ID,
     clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-    callbackURL: 'https://prettify-backend.onrender.com/auth/spotify/redirect',
+    callbackURL: '/auth/spotify/redirect',
     scope: ['user-top-read']
   }, async (accessToken, refreshToken, expires_in, profile, done) => {
     const encryptedAccess = encryptToken(accessToken)
