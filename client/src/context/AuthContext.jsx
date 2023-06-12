@@ -113,8 +113,8 @@ export function AuthProvider({ children }) {
 
     const allGenres = firstGenre + `%2C` + secondGenre
 
-    let artistInd1 = Math.floor(Math.random() * artists.artistData.length / 2)
-    let artistInd2 = Math.floor(Math.random() * artists.artistData.length / 2)
+    let artistInd1 = Math.floor(Math.random() * artists.artistData.length)
+    let artistInd2 = Math.floor(Math.random() * artists.artistData.length)
     while (artistInd2 === artistInd1) {
       artistInd2 = Math.floor(Math.random() * artists.artistData.length)
     }

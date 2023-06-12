@@ -20,9 +20,11 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGO_PORT
+    mongoUrl: `${process.env.MONGO_START}${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}${process.env.MONGO_END}`
   })
 }))
+
+app.get('/', (req, res) => { res.send('working') })
 
 app.use(passport.initialize())
 app.use(passport.session())
