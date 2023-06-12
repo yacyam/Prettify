@@ -103,7 +103,7 @@ export default function Main() {
     } catch (err) {
       if (err.response.status === 401) {
         console.log('need new access token')
-        await axios.get('http://localhost:3000/user/refresh_token', { withCredentials: true })
+        await axios.get('https://prettify-backend.onrender.com/user/refresh_token', { withCredentials: true })
         const [newArtistData, newTrackData] = await getSpotifyData()
         const artistData = aggregateArtistData(newArtistData)
         const trackData = aggregateTrackData(newTrackData)

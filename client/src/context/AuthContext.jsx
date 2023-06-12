@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
-    axios.get('http://localhost:3000/user/authenticate', { withCredentials: true })
+    axios.get('https://prettify-backend.onrender.com/user/authenticate', { withCredentials: true })
       .then(res => {
         if (res.data === 'ok') {
           setIsAuthenticated(true)
@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function getSpotifyData() {
-    const accessToken = await axios.get('http://localhost:3000/user/info',
+    const accessToken = await axios.get('https://prettify-backend.onrender.com/user/info',
       { withCredentials: true })
 
     const artistData = await axios.get('https://api.spotify.com/v1/me/top/artists',
@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
   }
 
   async function aggregateQualities(tracks) {
-    const accessToken = await axios.get('http://localhost:3000/user/info',
+    const accessToken = await axios.get('https://prettify-backend.onrender.com/user/info',
       { withCredentials: true })
 
     const allTrackStr =
@@ -100,7 +100,7 @@ export function AuthProvider({ children }) {
   }
 
   async function getRecs(artists, tracks, qualities) {
-    const accessToken = await axios.get('http://localhost:3000/user/info',
+    const accessToken = await axios.get('https://prettify-backend.onrender.com/user/info',
       { withCredentials: true })
 
     let firstGenre = artists.genres[0][0]

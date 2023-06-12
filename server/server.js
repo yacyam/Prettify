@@ -1,4 +1,4 @@
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 const express = require('express')
 const session = require('express-session')
 const passport = require('passport')
@@ -21,7 +21,12 @@ app.use(session({
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: `${process.env.MONGO_START}${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}${process.env.MONGO_END}`
-  })
+  }),
+  cookie: {
+    sameSite: "none",
+    secure: true,
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  }
 }))
 
 app.get('/', (req, res) => { res.send('working') })

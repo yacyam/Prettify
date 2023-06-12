@@ -7,7 +7,7 @@ export default function Navbar() {
   const { isAuthenticated } = useContext(AuthContext)
 
   async function logoutUser() {
-    window.open('http://localhost:3000/auth/logout', '_self')
+    window.open('https://prettify-backend.onrender.com/auth/logout', '_self')
   }
 
   return (

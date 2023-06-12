@@ -7,7 +7,7 @@ export default function Home() {
   const { isAuthenticated } = useContext(AuthContext)
 
   function loginUser() {
-    window.open('http://localhost:3000/auth/spotify', '_self')
+    window.open('https://prettify-backend.onrender.com/auth/spotify', '_self')
   }
 
   console.log(isAuthenticated)
