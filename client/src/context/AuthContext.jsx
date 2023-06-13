@@ -7,8 +7,10 @@ export default AuthContext
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    setIsLoading(true)
     axios.get('https://prettify-backend.onrender.com/user/authenticate', { withCredentials: true })
       .then(res => {
         if (res.data === 'ok') {
@@ -17,8 +19,12 @@ export function AuthProvider({ children }) {
         else {
           setIsAuthenticated(false)
         }
+        setIsLoading(false)
       })
-      .catch(err => console.log('Error in obtaining authentication info'))
+      .catch(err => {
+        console.log('Error in obtaining authentication info')
+        setIsLoading(false)
+      })
   }, [])
 
   async function getSpotifyData() {
@@ -164,7 +170,7 @@ export function AuthProvider({ children }) {
 
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, getSpotifyData, aggregateQualities, getRecs }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, getSpotifyData, aggregateQualities, getRecs }}>
       {children}
     </AuthContext.Provider>
   )
